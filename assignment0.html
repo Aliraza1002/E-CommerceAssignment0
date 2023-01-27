@@ -1,0 +1,61 @@
+<html>
+    <head>
+    <title>jQuery AJAX Country Autocomplete</title>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script>
+    $(document).ready(function(){ // This function runs when the html page is fully loaded
+        $("#country").keyup(function(){ // This function runs every time a key is pressed by the user while the "country" input is selected
+            
+            $.ajax({ // Using Ajax to send request to a sever to get data for the country suggestions
+                type: "GET", // getting the data from the requested web
+                url: "https://instasham.cstutoring.ca/Country/search", // The URL for the request
+                data: {keyword: $(this).val()}, // whatever the user is inputting (this.val) will be the keyboard that will be sent to to retreive the data from URL
+                dataType: 'json',
+                success: function(data){ // This function will run if the request is successful
+                    if(data.length==0 || data.length == 1 && data[0].nicename == $("#country").val()) { // If data received from URL is empty or there is only one element and it matches the current input field value
+                        removeSuggestions(); // Remove suggestions function called
+                        return; // Is this return necessary? 
+                    }
+                    var newContent = '';
+                    data.forEach(function(a){ // Iterate through each element from the data received from the URL
+                        newContent += '<span class="suggestion" onClick="selectCountry(\'' + a.nicename +'\');">' + a.nicename + '</span><br>'; // adds the "nicename" (country name from the URL) to the newContent variable and when the suggestion is clicked it calls the "selectCountry" function
+                        // Don't really understand what span does exactly or why it was used specifically
+                    });
+                    $("#country-suggestion").html(newContent).show(); // Replace the contents of the "country-suggestion" with the newContent
+                }
+            });
+        });
+    });
+
+    function selectCountry(country) { // This function is called when a suggested country is clicked
+        $("#country").val(country); // Set the country input field value to the selected suggestion
+        removeSuggestions(); // will call the removeSuggestions function to remove the suggestions box
+    }
+    function removeSuggestions() { // This function removes the suggestions box when user selects a country
+        $("#country-suggestion").html("").hide(); // will make the contents of "country-suggestion" element to an empty string and hide it
+    }
+    </script>
+    <style>
+        .suggestion-box {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #333333;
+        border-radius: 3px;
+        padding: 7px;
+        display: none;
+    }
+    .suggestion-box .suggestion:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>jQuery-AJAX Country Autocomplete</h1>
+            <input type="text" name="country" id="country" placeholder="Country name">
+            <div id="country-suggestion" class="suggestion-box"></div>
+            <p>Write the name of the country in the text input above to search for a country. Then when you see the country of your liking, click on it to automatically complete the input.</p>
+        </div>    
+    </body>
+</html>
